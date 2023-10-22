@@ -60,6 +60,8 @@ type State =
         /// A simulated infinite tape
         /// The key is just a simple index for lookups by Ptr
         Memory: Map<int, int>
+        /// Output buffer
+        Output: char list
     }
 
 /// Define an infix operator for defaultArg
@@ -144,8 +146,7 @@ let run state (input: Instr list) =
             | Print ->
                 //Read the current cell and print it as a char
                 let ch = char <| cellValue state
-                printf $"%c{ch}"
-                aux state nextIp
+                aux { state with Output = ch :: state.Output } nextIp
             | Input ->
                 //Read a single char from stdin and place it at the current
                 //memory cell as an int
@@ -160,6 +161,6 @@ let toInstr: char seq -> Instr list = Seq.choose instrFromChar >> Seq.toList
 //runProgram "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++." []
 //-> Hello World!
 let runProgram program =
-    let st = { Ptr = 0; Stack = []; Memory = Map.empty }
+    let st = { Ptr = 0; Stack = []; Memory = Map.empty; Output = [] }
     let instrs = toInstr program
-    run st instrs 
+    run st instrs
